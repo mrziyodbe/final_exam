@@ -25,7 +25,7 @@ export class Product extends Model<Product> {
   @Column({ type: DataType.INTEGER, allowNull: false })
   categoryId: number;
 
-  @Column({ type: DataType.DECIMAL(10, 2), allowNull: false })
+  @Column({ type: DataType.FLOAT, allowNull: false }) // Narxni FLOAT qilib olamiz
   price: number;
 
   @Column({ type: DataType.TEXT, allowNull: false })
@@ -37,14 +37,14 @@ export class Product extends Model<Product> {
   @Column({ type: DataType.INTEGER, allowNull: false })
   quantity: number;
 
-  @Column({ type: DataType.DECIMAL(3, 2), allowNull: true }) // 4.99 kabi qiymatlar uchun
+  @Column({ type: DataType.DECIMAL(3, 2), allowNull: true, defaultValue: 0 })
   totalRating: number;
 
-  @Column({ type: DataType.ARRAY(DataType.STRING), allowNull: false })
+  @Column({ type: DataType.ARRAY(DataType.TEXT), allowNull: false })
   images: string[];
 
   // Bog‘lanishlar
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { onDelete: 'CASCADE' })
   seller: User;
 
   @BelongsTo(() => Category)

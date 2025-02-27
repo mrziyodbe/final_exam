@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
-import { ConfigService } from 'src/common/config/config.service';
+import { ConfigService } from '@nestjs/config'; // ✅ TO‘G‘RI IMPORT
 import { UsersService } from 'src/users/users.service';
 import { Role } from 'src/common/roles';
 import { ROLES_KEY } from '../decorators/roles.decorator';
+
 @Injectable()
 export class RoleGuard extends AuthGuard implements CanActivate {
   constructor(
@@ -37,7 +38,7 @@ export class RoleGuard extends AuthGuard implements CanActivate {
 
     if (!requiredRoles.some((role) => user.role.includes(role))) {
       throw new ForbiddenException(
-        'Sizda buni amalga oshirish uchun huquq yoq',
+        'Sizda buni amalga oshirish uchun huquq yo‘q',
       );
     }
 

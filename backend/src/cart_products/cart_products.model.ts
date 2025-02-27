@@ -12,7 +12,7 @@ import { Product } from 'src/products/products.model';
 @Table({ tableName: 'cart_products' })
 export class CartProduct extends Model<CartProduct> {
   @ForeignKey(() => Cart)
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @Column({ type: DataType.INTEGER, allowNull: true })
   cart_id: number;
 
   @ForeignKey(() => Product)

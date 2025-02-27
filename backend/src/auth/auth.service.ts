@@ -18,9 +18,6 @@ export class AuthService {
     try {
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-      const isAdmin = createUserDto.role === Role.ADMIN;
-      const isSeller = createUserDto.role === Role.SELLER;
-
       const user = await this.userModel.create({
         firstName: createUserDto.firstName,
         lastName: createUserDto.lastName,
@@ -29,21 +26,17 @@ export class AuthService {
         phone: createUserDto.phone,
         gender: createUserDto.gender,
         age: createUserDto.age,
-        role: createUserDto.role || Role.USER, // Default USER
-        isApproved: isAdmin || isSeller ? false : true, // Admin & Seller tasdiq kerak
+        role: Role.USER,
+        isApproved: true,
       });
 
       return {
         success: true,
-        message: isAdmin
-          ? 'Admin sifatida roʻyxatdan oʻtildi. Super admin tasdigʻini kuting.'
-          : isSeller
-            ? 'Seller sifatida roʻyxatdan oʻtildi. Admin tasdigʻini kuting.'
-            : 'Roʻyxatdan muvaffaqiyatli oʻtdingiz.',
+        message: 'Roʻyxatdan muvaffaqiyatli oʻtdingiz.',
         userId: user.id,
       };
     } catch (error) {
-      console.error(' Roʻyxatdan oʻtishda xatolik:', error);
+      console.error('Roʻyxatdan oʻtishda xatolik:', error);
       return {
         success: false,
         message: 'Roʻyxatdan oʻtishda xatolik yuz berdi.',
@@ -74,10 +67,11 @@ export class AuthService {
       {
         id: user.id,
         role: user.role,
+        email: user.email,
       },
       {
-        secret: process.env.JWT_SECRET, // 🔥 JWT_SECRET qo‘shildi
-        expiresIn: process.env.JWT_EXPIRATION_TIME || '1h', // 🔥 Expiration qo‘shildi
+        secret: process.env.JWT_SECRET,
+        expiresIn: process.env.JWT_EXPIRATION_TIME || '24h',
       },
     );
 
@@ -85,13 +79,56 @@ export class AuthService {
       success: true,
       message: 'Tizimga muvaffaqiyatli kirdingiz.',
       token,
+      role: user.role,
     };
   }
 
-  async confirmUser(userId: number) {
+  async requestRoleChange(userId: number, requestedRole: Role) {
     const user = await this.userModel.findByPk(userId);
     if (!user) {
       throw new UnauthorizedException('Foydalanuvchi topilmadi.');
+    }
+
+    if (requestedRole === Role.SUPER_ADMIN) {
+      return {
+        success: false,
+        message: "Bu rolni so'rash mumkin emas.",
+      };
+    }
+
+    user.role = requestedRole;
+    user.isApproved = false;
+    await user.save();
+
+    return {
+      success: true,
+      message: `${requestedRole} roli uchun so'rov yuborildi. Tasdiqni kuting.`,
+    };
+  }
+
+  async confirmUser(userId: number, approverRole: Role) {
+    const user = await this.userModel.findByPk(userId);
+    if (!user) {
+      throw new UnauthorizedException('Foydalanuvchi topilmadi.');
+    }
+
+    if (user.role === Role.ADMIN && approverRole !== Role.SUPER_ADMIN) {
+      return {
+        success: false,
+        message: "Admin so'rovlarini faqat Super Admin tasdiqlashi mumkin.",
+      };
+    }
+
+    if (
+      user.role === Role.SELLER &&
+      approverRole !== Role.ADMIN &&
+      approverRole !== Role.SUPER_ADMIN
+    ) {
+      return {
+        success: false,
+        message:
+          "Seller so'rovlarini faqat Admin yoki Super Admin tasdiqlashi mumkin.",
+      };
     }
 
     user.isApproved = true;
@@ -101,5 +138,17 @@ export class AuthService {
       success: true,
       message: 'Foydalanuvchi tasdiqlandi.',
     };
+  }
+
+  async getUserProfile(userId: number) {
+    const user = await this.userModel.findByPk(userId, {
+      attributes: { exclude: ['password'] },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Foydalanuvchi topilmadi.');
+    }
+
+    return user;
   }
 }

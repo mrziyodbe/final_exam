@@ -1,3 +1,4 @@
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 import {
   Controller,
   Get,
@@ -6,11 +7,12 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { CartService } from './carts.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
-
 @Controller('carts')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
@@ -23,6 +25,12 @@ export class CartController {
   @Get()
   findAll() {
     return this.cartService.findAll();
+  }
+  @Get('/active')
+  @UseGuards(AuthGuard)
+  async findActiveCart(@Request() req) {
+    console.log(req.user);
+    return this.cartService.findActiveCart(req.user.id);
   }
 
   @Get(':id')

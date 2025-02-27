@@ -6,12 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { PaymentService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @Controller('payments')
+@UseGuards(AuthGuard)
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentService) {}
 

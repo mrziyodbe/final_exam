@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -14,14 +15,17 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsInt()
+  @Type(() => Number)
   seller_id: number;
 
   @IsNotEmpty()
   @IsInt()
+  @Type(() => Number)
   category_id: number;
 
   @IsNotEmpty()
   @IsInt()
+  @Type(() => Number)
   price: number;
 
   @IsNotEmpty()
@@ -34,9 +38,11 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsInt()
+  @Type(() => Number)
   quantity: number;
 
   @IsOptional()
+  @Type(() => Number)
   totalrating?: number;
 
   @IsArray()

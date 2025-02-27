@@ -5,16 +5,17 @@ import { UsersModule } from '../users/users.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from '../users/user.model';
 import { UsersService } from '../users/users.service';
-import { JwtService, JwtModule } from '@nestjs/jwt'; // 🔥 JWT qo‘shildi
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtService, JwtModule } from '@nestjs/jwt';
 import { NotificationService } from 'src/notifications/notifications.service';
 import { Notification } from 'src/notifications/notifications.model';
+import { ConfigModule } from 'src/common/config/config.module';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, UsersService, JwtService, NotificationService],
   imports: [
-    ConfigModule, // 🔥 ConfigModule ham global bo‘lsa ham kiritish yaxshiroq
+    ConfigModule,
     SequelizeModule.forFeature([User, Notification]),
     UsersModule,
     JwtModule.registerAsync({

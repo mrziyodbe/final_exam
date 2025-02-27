@@ -6,11 +6,14 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { OrderItemService } from './order_items.service';
 import { OrderItem } from './order_items.model';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @Controller('order-items')
+@UseGuards(AuthGuard)
 export class OrderItemController {
   constructor(private readonly orderItemService: OrderItemService) {}
 

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Cart } from './carts.model';
 import { CartProduct } from 'src/cart_products/cart_products.model';
@@ -18,8 +22,24 @@ export class CartService {
   }
 
   async findOne(id: number): Promise<Cart> {
+    if (!id || isNaN(id)) {
+      throw new BadRequestException('Invalid Cart ID');
+    }
     const cart = await this.cartModel.findByPk(id, { include: [CartProduct] });
     if (!cart) throw new NotFoundException('Cart not found');
+    return cart;
+  }
+  async findActiveCart(userId: number): Promise<Cart> {
+    let cart = await this.cartModel.findOne({
+      where: { user_id: userId },
+      include: [CartProduct],
+    });
+
+    if (!cart) {
+      console.log('Cart not found, creating new one...');
+      cart = await this.cartModel.create({ user_id: userId });
+    }
+
     return cart;
   }
 

@@ -2,27 +2,39 @@ import {
   Table,
   Column,
   Model,
+  DataType,
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
-import { User } from '../users/user.model';
-import { Injectable } from '@nestjs/common';
+import { User } from 'src/users/user.model';
 
-@Injectable()
-@Table({ tableName: 'notifications', timestamps: false })
-export class Notification extends Model {
+@Table({ tableName: 'notifications' })
+export class Notification extends Model<Notification> {
+  @Column({
+    primaryKey: true,
+    autoIncrement: true,
+    type: DataType.INTEGER,
+  })
+  id: number;
+
   @ForeignKey(() => User)
-  @Column
-  user_id: number;
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  userId: number;
 
-  @Column
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+  })
   message: string;
 
-  @Column({ defaultValue: false })
-  is_read: boolean;
-
-  @Column({ defaultValue: new Date() })
-  created_at: Date;
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  isRead: boolean;
 
   @BelongsTo(() => User)
   user: User;
